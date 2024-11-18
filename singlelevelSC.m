@@ -2,10 +2,21 @@
 %
 % Main driver for running single-level adaptive stochastic collocation algorithm
 %
-% Latest update: AB; 02 December 2022
-% Copyright (c) 2022 A. Bespalov, D. Silvester, F. Xu
+% Latest update: AS; 28 June 2024
+% Copyright (c) 2022 A. Bespalov, A. Savinov, D. Silvester, F. Xu
 
 clear all; close all;
+%%%%%%%%%%
+addpath('goafem');
+x1_0 = default('Domain x1-coord lower limit (default is 0.25)', 0.25);
+        x1_1 = default('Domain x1-coord upper limit (default is 0.75)', 0.75);
+        x2_0 = default('Domain x2-coord lower limit (default is 0.25)', 0.25);
+        x2_1 = default('Domain x2-coord upper limit (default is 0.75)', 0.75);
+        supp = @(x1,x2) 1.*(x1_0 < x1 & x1 < x1_1 & x2_0 < x2 & x2 < x2_1);
+        area = (x1_1 - x1_0)*(x2_1 - x2_0);
+        G_rhs = {@(x1,x2) (1/area).*supp(x1,x2), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1)), ...
+                 -1};
+%%%%%%%%%
 stochcol_testproblems;
 stochcol_adaptive_global_settingsP1;
 if sn ~= 3 
@@ -17,7 +28,6 @@ adaptmax = default('set the number of adaptive steps (default is 40)',40);
 cpointsmax = 7;
 tot_err_est = Inf;
 tot_err_direct = Inf;
-% Q = 2;
 % preallocation of arrays
     dof = nan(1,adaptmax);
     err_p_iter = nan(1,adaptmax);
@@ -32,6 +42,7 @@ tot_err_direct = Inf;
     sols_iter = cell(1,adaptmax);
     paras_sg_iter = cell(1,adaptmax);
     paras_fem_iter = cell(1,adaptmax);
+    Goal_unc_iter = nan(1,adaptmax);
     
 iter = 0; glevel = 0;
 startLoopTime = tic;
@@ -39,6 +50,8 @@ while tot_err_direct >= delta && iter <= adaptmax
     if iter == 0 % First iteration step
         % Initial index set is for a single collocation point
         X = stochcol_getindexset(0, M);
+        % Specimen Index Set
+        % X = [1 1 1 1; 2 1 1 1; 1 2 1 1];
         % Several attributes of the general sparse grid interpolation given
         % the index set and the sequence of 1D collocation nodes, such as
         % the underlying grid, the coordinates of the underlying grid, the
@@ -99,7 +112,17 @@ while tot_err_direct >= delta && iter <= adaptmax
                 pmethod, paras_fem_errest, paras_fem0, paras_detail0, ...
                 x_gal, coords(k, :), aa, aax1, aax2, rhs_fun);
             sols(:, k) = x_gal;
-            errests(k) = errest;
+            if rv_id == 3
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%
+                mesh_x = paras_fem{1}(:,1);
+                mesh_y = paras_fem{1}(:,2);
+                a_coord = aa(mesh_x, mesh_y, coords(k, :));
+                a_min_z = min(a_coord);
+                errests(k) = errest/a_min_z;
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%
+            else
+                errests(k) = errest;
+            end
             MMeles{k} = MMele;
             MMedges{k} = MMedge;
         end
@@ -136,7 +159,7 @@ while tot_err_direct >= delta && iter <= adaptmax
                 new_dim = find(Mset - 1);
                 %M = M + 1;
                 simulationParams(1) = new_dim;
-                disp(Mset)
+                disp(Mset(1:new_dim))
                 fprintf('New dimensionality is %d \n', new_dim)
                 paras_sg = stochcol_sg([X, ones(size(X,1), new_dim-M+Q)], rule_id);
                 gridd_diff = [gridd_diff, ones(size(gridd_diff, 1), new_dim-M)];
@@ -254,7 +277,17 @@ while tot_err_direct >= delta && iter <= adaptmax
                     aa, aax1, aax2, rhs_fun);
                 sols(:, k) = x_gal;
                 sols0(:, k) = x_gal0;
-                errests(k) = errest;
+                if rv_id == 3
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%
+                    mesh_x = paras_fem{1}(:,1);
+                    mesh_y = paras_fem{1}(:,2);
+                    a_coord = aa(mesh_x, mesh_y, coords(k, :));
+                    a_min_z = min(a_coord);
+                    errests(k) = errest/a_min_z;
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%
+                else
+                    errests(k) = errest;
+                end
                 MMeles{k} = MMele;
                 MMedges{k} = MMedge;
             end
@@ -280,7 +313,7 @@ while tot_err_direct >= delta && iter <= adaptmax
     errest2s = zeros(1, size(coords_diff, 1));
     a_unit = @(x1, x2) ones(size(x1));
     rhs_unit = @(x1, x2) ones(size(x1));
-    [A_unit,~] = stochcol_fem_setup(paras_fem0{1}, paras_fem0{2}, a_unit, rhs_unit);
+    [A_unit,~] = stochcol_fem_setup(paras_fem{1}, paras_fem{2}, a_unit, rhs_unit);
     for k = 1:size(coords_diff, 1)
         % FE solution for a propective collocation node
         if nargin(rhs) == 3 
@@ -299,9 +332,9 @@ while tot_err_direct >= delta && iter <= adaptmax
         LL_diff = stochcol_getinterpolant_2(gridd, ...
             clincombiset, indlincombiset, coords_diff(k,:), polys);
         % interpolated FE solution at the collocation node
-        uyy = sols0*LL_diff;
+        uyy = sols*LL_diff;
         % H1 seminorm of the interpolation error at the collocation node
-        errest2s(k) = sqrt((x_gal0 - uyy)' * A_unit * (x_gal0 - uyy));
+        errest2s(k) = sqrt((x_gal - uyy)' * A_unit * (x_gal - uyy));
     end
 
     % indexwise parametric error estimates based on the detail collocation nodes
@@ -358,8 +391,8 @@ while tot_err_direct >= delta && iter <= adaptmax
     ncptsf = size(coords, 1)+ size(coords_diff, 1);
     grid_old_ind = setdiff([1:ncptsf]',grid_diff_ind);
     % construct array containing all the cpoint solution vectors
-    sols_all = nan(length(paras_fem0{1}), ncptsf);
-    sols_all(:,grid_old_ind) = sols0; sols_all(:,grid_diff_ind) = sols_diff0;
+    sols_all = nan(length(paras_fem{1}), ncptsf);
+    sols_all(:,grid_old_ind) = sols; sols_all(:,grid_diff_ind) = sols_diff;
         if ncptsf > ncpts
         fprintf('redundant sparse grid solutions ..\n')
         [gdiff,indx]=setdiff(paras_sg_full{4}, paras_sg_diff{4}, 'rows');
@@ -398,7 +431,11 @@ while tot_err_direct >= delta && iter <= adaptmax
     paras_sg_iter{iter} = paras_sg;
     paras_fem_iter{iter} = paras_fem;
     dof(iter) = size(sols,1)*size(sols,2);
-
+    [~, qz] = goafem_stochcol_fem_setup(paras_fem{1}, paras_fem{2}, a_unit, G_rhs);
+    [~,~,~,~,wp] = stochcol_multilag(paras_sg{4}, paras_sg{1}, paras_sg{2}, paras_sg{3}, rule_id, fun_p);
+    Goal_unc = qz.'*sols*wp;
+    Goal_unc_iter(iter) = Goal_unc; 
+    fprintf('\n GF error %.9f\n',abs(Goal_unc - 0.124120599));
 end
 
 endLoopTime = toc(startLoopTime);

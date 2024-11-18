@@ -1,5 +1,17 @@
 function [edgnorm_u,edgnorm_z] = goafem_stochcol_compute_L2edge(sols_u_diff, sols_z_diff, evt)
-% COMMENTS NEED FINISHING
+% GOAFEM_STOCHCOL_COMPUTE_L2EDGE computes local norms for both primal and
+% dual problems
+%
+% input:
+%     sols_u_diff     pirmal solution at new colocation points
+%     sols_z_diff     dual solution at new colocation points
+%             evt     elements to vertex mapping
+%
+% output:
+%       edgnorm_u     array of edge norm for primal solution 
+%       edgnorm_z     array of edge norm for dual solution 
+%
+% TR; 28 September 2022
 
 % Initialisation
 ncoords = zeros((size(sols_u_diff,2)));

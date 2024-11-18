@@ -3,9 +3,34 @@ function [errest_u, errest_z, elerr_u, elerr_z, ederr_u, ederr_z, ...
           goafem_stochcol_fem_estimator(pmethod, ...
             paras_fem_errest, paras_fem, paras_detail, u_gal, z_gal, ...
             coord, aa, aax1, aax2, rhs_fun, qoi_fun, tout)
+%GOAFEM_STOCHCOL_FEM_ESTIMATOR computes spatial errors for given
+%collocation point coord
+%       
+% input:
+%            pmethod    defines P1/P2 approximation
+%   paras_fem_errest, 
+%          paras_fem,
+%       paras_detail    parameters of FEM and cooresponding mesh
+%              u_gal    primal solution at collocation point coord
+%              z_gal    dual solution at collocation point coord
+%              coord    collocation point
+%     aa, aax1, aax2    handles for dissusion coefficient and componets of its gradient
+%            rhs_fun    function handle for the right-hand side
+%            qoi_fun    function handle for the quantity of interest
+%               tout    switcher to posteriori error estimation
+% output:
+%            elerr_u    vector of 2-level element primal indicators
+%            elerr_z    vector of 2-level element dual indicators
+%            ederr_u    vector of 2-level edge primal indicators
+%            ederr_z    vector of 2-level edge dual indicators
+%           errest_u    global 2-level primal error estimate
+%           errest_z    global 2-level dual error estimate
+%              Msetu    set of marked elements/edges for primal problem
+%              Msetz    set of marked elements/edges for dual problem
 %
-% COMMENTS NEED FINISHING
+% SEE ALSO: diffpost_p1_with_p1_2level
 %
+% TR; 13 July 2022
 
 if nargin < 13, tout = 0; end
 xy      = paras_fem{1};

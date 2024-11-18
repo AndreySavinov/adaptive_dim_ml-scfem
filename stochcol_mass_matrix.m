@@ -1,17 +1,19 @@
 function [Q, P] = stochcol_mass_matrix(xy,mv,varargin)
 %STOCHCOL_MASS_MATRIX finite element matrices generator
 %
-%   [Q] = stochcol_mass_matrix(xy, mv)
+%   [Q, P] = stochcol_mass_matrix(xy, mv)
 %
 %   input
 %                xy  nodal coordinate vector
 %                mv  element mapping matrix
 %   output
-%          Q         mass matrix
-%
+%          Q         mass matrix contains elemetns int_D \phi_i(x)
+%                     \phi_j(x) dx
+%          P         mass matrix contains elemetns int_D \phi_i(x)
+%                     \frac{d \phi_j(x) /dx} dx
 %   Natural boundary conditions apply. Dirichlet conditions
 %   must be explicitly enforced by calling function imposebc.
-%    TIFISS function: AB; 14 December 2021.
+%    TIFISS function: AS; 28 June 2024.
 % Copyright (c) 2017 A. Bespalov, D.J. Silvester
 
 [nel, dim] = size(mv); % % no. of elements and no. of nodes per element
@@ -47,7 +49,7 @@ for igpt = 1:ngpt
     %  evaluate derivatives etc, of FE basis
     [jac,~,phi,dphidx,dphidy] = tderiv(sigpt,tigpt,xl_v,yl_v); % P1
     if p_method == 2
-        [phi,~,~] = tqderiv(sigpt,tigpt,xl_v,yl_v); % P2
+        [phi,dphidx,dphidy] = tqderiv(sigpt,tigpt,xl_v,yl_v); % P2
     end
     for j = 1:dim
         for i = 1:dim

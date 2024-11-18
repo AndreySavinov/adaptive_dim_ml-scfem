@@ -1,8 +1,24 @@
 function [serrest_u, serrest_z] = goafem_stochcol_direct_estimatorX( ...
     paras_sg, paras_fem, list, pmethod, rhs_fun, qoi_fun, aa)
-%  
-% COMMENTS NEED FINISHING
+% GOAFEM_STOCHCOL_DIRECT_ESTIMATORX computes direct spatial error
+% estimates.
 %
+% input:
+%          paras_sg   sparse grid parameters
+%         paras_fem   spatial mesh parameter
+%              list   list of integrals of Lagrange polynomials
+%           pmethod   indicator P1/P2 basis in spatial domain
+%           rhs_fun   RHS function cell
+%           qoi_fun   QOI function cell
+%                aa   diffuison coefficient handle
+%
+% output:
+%       serrest_u     direct spatial error estimation of primal solution 
+%       serrest_z     parametric error estimation of dual solution
+
+% SEE ALSO: goafem_singlelevelSC
+%
+% TR, AS; 28 June 2024
 
 
 G = stochcol_gmatrices(paras_sg{4}, paras_sg{5}, paras_sg{6}, list);

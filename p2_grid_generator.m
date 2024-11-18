@@ -33,6 +33,7 @@ function [p2xy,p2evt,p2bound] = p2_grid_generator(xy,evt,bound)
   
 % Total edges (with repetitions)  
   edges = [evt(:,[2,3]); evt(:,[3,1]); evt(:,[1,2])];
+
   
 % Total edges of the triangulation without repetitions
   [edges,~,ic] = unique(sort(edges,2),'rows');    

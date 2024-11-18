@@ -1,6 +1,6 @@
 function [edgeres_u,edgeres_z] = goafem_edgeres_p1_with_p1(xy, evt, eboundt, u_gal, z_gal, eex, ...
     tve, els, coeff_fun)
-% COMMENTS NEED FINISHING
+% GOAFEM_EDGERES_P1_WITH_P1 computes the residuals per edge
 %
 %   input:
 %               xy    vertex coordinate vector
@@ -20,6 +20,8 @@ function [edgeres_u,edgeres_z] = goafem_edgeres_p1_with_p1(xy, evt, eboundt, u_g
 % Function(s) called: gausspoints_oned
 %                     tderiv
 %                     p1fluxjmps
+%
+% TR; 28 September 2022
 
 x = xy(:,1);
 y = xy(:,2);

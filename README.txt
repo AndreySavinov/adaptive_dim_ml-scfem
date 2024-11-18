@@ -1,4 +1,4 @@
-The m-files in this directory are associated with the following two papers:
+The m-files in this directory are associated with the following three papers:
 
 [1] A. Bespalov, D. Silvester and F. Xu,
     Error estimation and adaptivity for stochastic collocation finite elements.
@@ -15,12 +15,20 @@ The m-files in this directory are associated with the following two papers:
     Preprint
     https://arxiv.org/abs/2202.08902
 
+[3] A. Bespalov, Dirk Praetorius, Thomas Round and Andrey Savinov,
+    Goal-oriented error estimation and adaptivity for stochastic collocation FEM.
+    Preprint
+    https://arxiv.org/abs/2406.05028
+
 
 The driver for generating adaptive single-level SC-FEM approximations is
 singlelevelSC.m
 
 The driver for generating adaptive multilevel SC-FEM approximations is
 multilevelSC.m
+
+The driver for generating adaptive single-level SC-FEM approximations for goal-oriented problems is
+goafem_singlelevelSC.m
 
 The default implementation is for a Unix architecture.
 On a Windows machine, run the script-file

@@ -1,4 +1,4 @@
-% Script specifiyng the main parameters of goafem algotrihm for windows
+% Script specifiyng the main parameters of goafem algotrihm for unix
 % machine
 % AS, TR; 28 June 2024
 clear
@@ -74,11 +74,11 @@ else
 end    
     
 if rf_type == 1
-    system('copy .\test_problems\exponent_trunc_affine.m               .\stochcol_diffusion_grad_and_coeff.m');
+    !/bin/cp ./test_problems/exponent_trunc_affine.m               ./stochcol_diffusion_grad_and_coeff.m
 elseif rf_type == 2
-    system('copy .\test_problems\square_trunc_affine.m                 .\stochcol_diffusion_grad_and_coeff.m');
+    !/bin/cp ./test_problems/square_trunc_affine.m                 ./stochcol_diffusion_grad_and_coeff.m
 elseif rf_type == 3
-   system('copy .\test_problems\standard_trunc_affine.m               .\stochcol_diffusion_grad_and_coeff.m');
+   !/bin/cp  ./test_problems/standard_trunc_affine.m               ./stochcol_diffusion_grad_and_coeff.m'
 end
 
 
@@ -88,19 +88,19 @@ if expansion_type == 1 % seperable exponential
     ay = 1;
     correl_x = default('correlation length in x (default is 1)', 1);
     correl_y = default('correlation length in y (default is 1)', 1);
-    system('copy .\test_problems\separable_exponential_spatial_expansion_coeff.m       .\stochcol_diffusion_coeff_spatial_expansion.m');
-    system('copy .\test_problems\separable_exponential_spatial_expansion_grad_x1.m     .\stochcol_diffusion_grad_x1_spatial_expansion.m');
-    system('copy .\test_problems\separable_exponential_spatial_expansion_grad_x2.m     .\stochcol_diffusion_grad_x2_spatial_expansion.m');
+    !/bin/cp ./test_problems/separable_exponential_spatial_expansion_coeff.m       ./stochcol_diffusion_coeff_spatial_expansion.m
+    !/bin/cp ./test_problems/separable_exponential_spatial_expansion_grad_x1.m     ./stochcol_diffusion_grad_x1_spatial_expansion.m
+    !/bin/cp ./test_problems/separable_exponential_spatial_expansion_grad_x2.m     ./stochcol_diffusion_grad_x2_spatial_expansion.m
 elseif expansion_type == 2 % Eigel
     sigma = default('Eigel standard deviation (default is 0.547)', 0.547);
-    system('copy .\test_problems\eigel_spatial_expansion_coeff.m       .\stochcol_diffusion_coeff_spatial_expansion.m');
-    system('copy .\test_problems\eigel_spatial_expansion_grad_x1.m     .\stochcol_diffusion_grad_x1_spatial_expansion.m');
-    system('copy .\test_problems\eigel_spatial_expansion_grad_x2.m     .\stochcol_diffusion_grad_x2_spatial_expansion.m');
+    !/bin/cp ./test_problems/eigel_spatial_expansion_coeff.m       ./stochcol_diffusion_coeff_spatial_expansion.m
+    !/bin/cp ./test_problems/eigel_spatial_expansion_grad_x1.m     ./stochcol_diffusion_grad_x1_spatial_expansion.m;
+    !/bin/cp ./test_problems/eigel_spatial_expansion_grad_x2.m     ./stochcol_diffusion_grad_x2_spatial_expansion.m
 elseif expansion_type == 3 % unit
     rf_type = 3;
-    system('copy .\test_problems\unit_coeff.m                          .\stochcol_diffusion_coeff_spatial_expansion.m');
-    system('copy .\test_problems\zero_grad_x1.m                        .\stochcol_diffusion_grad_x1_spatial_expansion.m');
-    system('copy .\test_problems\zero_grad_x2.m                        .\stochcol_diffusion_grad_x2_spatial_expansion.m');
+    !/bin/cp ./test_problems/unit_coeff.m                          ./stochcol_diffusion_coeff_spatial_expansion.m
+    !/bin/cp ./test_problems/zero_grad_x1.m                        ./stochcol_diffusion_grad_x1_spatial_expansion.m
+    !/bin/cp ./test_problems/zero_grad_x2.m                        ./stochcol_diffusion_grad_x2_spatial_expansion.m
 end
 
 fprintf('\nchoose type of random variable ');

@@ -73,7 +73,7 @@ for subelt = 1:4
         tigpt = t(igpt);
         wght = wt(igpt);
         [sigptloc,tigptloc] = subelt_transf(sigpt,tigpt,subelt,subdivPar);
-        
+
         % Evaluate derivatives, gradient of the coefficients, and rhs
         [~,invjac_v,~,dphidx_v,dphidy_v] = tderiv(sigptloc,tigptloc,xl_v,yl_v);
         [jac_m, ~, phi_m, ~, ~] = tderiv(sigpt, tigpt, xl_m, yl_m);

@@ -1,5 +1,5 @@
 function [rhs, qoi] = goafem_stochcol_tgauss(s, t, xl_v, yl_v, rhs_fun, qoi_fun)
-% COMMENTS NEED FINISHING
+% GOAFEM_STOCHCOL_TGAUSS calculates right-hand side and QoI at physical coordinates of points in all physical elements
 %
 %       input
 %           s           x coordinate of Gaussian point in refence element
@@ -13,6 +13,8 @@ function [rhs, qoi] = goafem_stochcol_tgauss(s, t, xl_v, yl_v, rhs_fun, qoi_fun)
 %           rhs         Evaluated RHS cell
 %           qoi         Evaluated QOI cell
 %
+% TR, AS; 28 June 2024
+
 nel = length(xl_v(:,1)); % number of elements
 zero_v = zeros(nel,1); 
 x1 = zero_v; 

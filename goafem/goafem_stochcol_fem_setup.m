@@ -1,16 +1,18 @@
 function [A, f, g, Q, qe] = goafem_stochcol_fem_setup(xy, evt, coeff_fun, rhs_fun, varargin)
-% COMMENTS NEED FINISHING
+% GOAFEM_STOCHCOL_SETUP computes the linear system for sampled Galerkin
+% promal and dual problems
 %
-%   [A, f, g, Q, qe] = goafem_stochcol_fem_setup(xy, evt, diff_fun, rhs_fun, qoi_fun)
+%   [A, f, g, Q, qe] = goafem_stochcol_fem_setup(xy, evt, diff_fun, rhs_fun, qoi_fun, varargin)
 %
-%   input
+%   input:
 %                xy  nodal coordinate vector
 %               evt  element mapping matrix
 %          p_method  approximation method (1 - linear; 2 - quadratic)
 %         coeff_fun  function handle for the diffusion coefficient
 %           rhs_fun  RHS function cell
 %           qoi_fun  QOI function cell
-%   output
+%          varargin  may contain additional parameters for non-linear QoIs
+%   output:
 %          A         stiffness matrix
 %          f         rhs vector
 %          g         rhs vector
@@ -19,6 +21,8 @@ function [A, f, g, Q, qe] = goafem_stochcol_fem_setup(xy, evt, coeff_fun, rhs_fu
 %
 %   Natural boundary conditions apply. Dirichlet conditions
 %   must be explicitly enforced by calling function imposebc.
+%
+% TR, AS. 28 June 2024
 if numel(varargin) == 0
     qoi_fun = rhs_fun;
     qoi_fun{5} = -1;
@@ -115,18 +119,4 @@ elseif qoi_fun{5} == 3
 else
     g = assembly(ge,evt,n);
 end
-% A = sparse(n,n);
-% f = zeros(n,1);
-% g = zeros(n,1);
-% for krow=1:dim
-%     nrow=evt(:,krow);
-%     for kcol=1:dim
-%         ncol=evt(:,kcol);
-%         A = A + sparse(nrow,ncol,Ae(:,krow,kcol),n,n);
-%     end
-%     for els=1:nel
-%         f(nrow(els),1) = f(nrow(els),1) + fe(els,krow);
-%         g(nrow(els),1) = g(nrow(els),1) + ge(els,krow);
-%     end
-% end
 end

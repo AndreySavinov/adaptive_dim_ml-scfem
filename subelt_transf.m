@@ -57,16 +57,16 @@ function [sigptloc,tigptloc] = subelt_transf(s,t,subelt,subdivPar)
       else%if subelt == 4
           % Bottom-left sub-element
           x = [0.5, 0.5, 1.0]; 
-         y = [0.5, 0.0, 0.0];
+          y = [0.5, 0.0, 0.0];
       end
       
   end
   
 % Affine mapping from the reference element K^ to the right sub-element
-  B = [x(2) - x(1),  y(2) - y(1); ...
-       x(3) - x(1),  y(3) - y(1)];
-  c = [x(1); y(1)];
-  F = c + B'*[s;t];
+  B = [x(3) - x(2),  x(1) - x(2); ...
+       y(3) - y(2),  y(1) - y(2)];
+  c = [x(2); y(2)];
+  F = c + B*[s;t];
 
 % Assign new points
   sigptloc = F(1);

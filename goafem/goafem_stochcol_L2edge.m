@@ -1,6 +1,19 @@
 function [edgnorm_u,edgnorm_z] = goafem_stochcol_L2edge(xy, sols_u_loc, sols_z_loc, coords, evt)
-% COMMENTS NEED FINISHING
-
+% GOAFEM_STOCHCOL_L2EDGE computes local norms for both primal and
+% dual problems
+%
+% input: 
+%              xy     mesh coordinates
+%      sols_u_loc     pirmal solution at collocation points
+%      sols_z_loc     dual solution at colocation points
+%          coords     collocation points
+%             evt     elements to vertex mapping
+%
+% output:
+%       edgnorm_u     array of edge norm for primal solution 
+%       edgnorm_z     array of edge norm for dual solution 
+%
+% TR; 28 September 2022
 % Initialisation
 ncoords = size(coords,1);
 nel = size(evt,1);

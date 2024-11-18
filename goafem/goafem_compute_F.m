@@ -1,33 +1,30 @@
-function [Bform] = goafem_compute_F(KL_DATA, paras_fem, paras_sg, ...
-    list, listy, listy2, sols_u, sols_z, rhs_fun, qoi_fun, rf_type, X, fun_p, rule_id, aa, polys)
-% GOAFEM_DOBILINEARFORM computes the bilinear form associated with the
+function [Fform] = goafem_compute_F(paras_fem, paras_sg, ...
+    sols_z, rhs_fun, qoi_fun, X, fun_p, rule_id, aa, polys)
+% GOAFEM_COMPUTE_F computes the linear functional associated with the
 % correction term for the error in the goal functional.
 %
-% Bform = goafem_doBilinearForm(KL_DATA, paras_sg, paras_fem, ...
-%    list, listy, sols_u, sols_z, rhs_fun, qoi_fun)
+% [Fform] = goafem_compute_F(paras_fem, paras_sg, ...
+%    sols_z, rhs_fun, qoi_fun, X, fun_p, rule_id, aa, polys)
 %
 % input:
-%          KL_DATA    function cell for the expanded diffusion coefficient
 %        paras_fem    spatial mesh parameter cell array
 %         paras_sg    sparse grid parameter cell array
-%             list    integral cell array of products of Lagrange functions
-%            listy    modified cell array associated with (linear) expansions of diffusion coeffients
-%           listy2    modified cell array associated with (quadratic) expansions of diffusion coeffients
-%           sols_u    per-collocation point primal solution vectors
 %           sols_z    per-collocation point dual solution vectors
 %           rhs_fun   function handle cell array for the right-hand-side
 %           qoi_fun   function handle cell array for the quantity of interest
-%           rf_type   expansion type
+%           X         index set
+%           rule_id   rule for generation of sampling points
+%           aa        diffusion coefficient handle
+%           polys     list of lagrange polynomials
 %
 % output:
-%             Bform   bilinear form B(sols_u, sols_z)
+%             Fform   linear functional F(sols_z)
 %
-% Function(s) called: goafem_stochcol_Mmatrices
-%                     goafem_stochcol_fem_setup
+
 %
 % SEE ALSO: goafem_singlelevelSC
 %
-% TR; 14 October 2023
+% AS; 28 June 2024
 
 M = size(paras_sg{9},2);
 
@@ -66,5 +63,5 @@ M = size(paras_sg{9},2);
                 IntA(k) = Lk'*Intk; %sum(Lk.*Intk,[1,2]);
             end
         end
-        Bform = IntA'*IntY;
+        Fform = IntA'*IntY;
 end

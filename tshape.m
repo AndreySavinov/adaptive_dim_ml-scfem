@@ -13,13 +13,13 @@
 %    PIFISS function: DJS; 31 January 2007. 
 % Copyright (c) 2007 C.E. Powell, D.J. Silvester
       one = 1.0e0; zero=0.0e0;
-      xi(1) = one-s-t;
-      xi(2) = s;
-	  xi(3) = t;
-      dxids(1) = -one;
-      dxids(2) = one;
-      dxids(3) = zero;
-      dxidt(1) = -one;
-      dxidt(2) = zero;
-      dxidt(3) = one;
+      xi(1) = t;
+      xi(2) = one-s-t;
+	  xi(3) = s;
+      dxids(1) = zero;
+      dxids(2) = -one;
+      dxids(3) = one;
+      dxidt(1) = one;
+      dxidt(2) = -one;
+      dxidt(3) = zero;
       return

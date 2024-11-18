@@ -58,7 +58,7 @@ if rule_id == 1
 elseif rule_id == 2
     rule = @(i) (i==1).*1 + (i>1).*(2.^(i-1)+1); % doubling rule
 elseif rule_id == 3
-    rule = @(i) (i>=1).*(2*i-1); % symmetric Leja
+    rule = @(i) (i>=1).*(2*i-1); % symmetric Leja for Gaussian distribution
 end
 cset = [];
 indset = [];

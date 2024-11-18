@@ -117,7 +117,7 @@ switch rf_type
         IntY = zeros(K2,1);
         [~, KA, ~] = intersect(coords_reft, coords, 'rows');
         [~,~,~,~,IntY(:)] = stochcol_multilag(paras_sg_reft{4}, paras_sg_reft{1}, paras_sg_reft{2}, paras_sg_reft{3}, rule_id, fun_p);
-        for k = 1:K2
+        parfor k = 1:K2
             [ugalreft, zgalreft, Ak] = goafem_stochcol_fem_solver(coords_reft(k,:), ...
                             paras_fem, aa, rhs_fun, qoi_fun);
             if sum(k == KA)

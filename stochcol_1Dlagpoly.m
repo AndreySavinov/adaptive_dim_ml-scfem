@@ -3,7 +3,7 @@ function [lagpoly, weight]= stochcol_1Dlagpoly(node, nodes, varargin)
 %
 % [lagpoly, weight]= stochcol_1Dlagpoly(node,nodes,varargin)
 %
-%   Latest modification: AS; 25 November 2022
+%   Latest modification: AS; 28 June 2024
 % Copyright (c) 2019 F. Xu
 
 if length(nodes)==1

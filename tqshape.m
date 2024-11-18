@@ -13,16 +13,16 @@ function [psi,dpsids,dpsidt] = tqshape(s,t)
 %    TIFISS function: QL; 17 April 2011.
 % Copyright (c) 2011 D.J. Silvester and Qifeng Liao
       one = 1.0e0; zero=0.0e0;
-      xi(1) = one-s-t;
-      xi(2) = s;
-	  xi(3) = t;
-      dxids(1) = -one;
-      dxids(2) = one;
-      dxids(3) = zero;
-      dxidt(1) = -one;
-      dxidt(2) = zero;
-      dxidt(3) = one;
-%
+      xi(1) = t;
+      xi(2) = one-s-t;
+	  xi(3) = s;
+      dxids(1) = zero;
+      dxids(2) = -one;
+      dxids(3) = one;
+      dxidt(1) = one;
+      dxidt(2) = -one;
+      dxidt(3) = zero;
+      
  	  psi(1) = (2*xi(1)-1)*xi(1);
 	  psi(2) = (2*xi(2)-1)*xi(2);
 	  psi(3) = (2*xi(3)-1)*xi(3);

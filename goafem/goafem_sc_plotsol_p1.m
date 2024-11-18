@@ -1,9 +1,22 @@
 function goafem_sc_plotsol_p1(dom_type,sol_u,sol_z,var_u,var_z,evt,xy)
-% COMMENTS NEED FINISHING
+% GOAFEM_SC_PLOTSOL_P1 plots expectation and variance of both primal and
+% dual solutions.
+% input:
+%          dom_type   type of spatial domain
+%             sol_u   primal solution
+%             sol_z   dual solution
+%             var_u   variance of primal solution
+%             var_z   variance of dual solution
+%               evt   indexing of mesh points
+%                xy   coordinates of mesh vertices
+%
+% SEE ALSO: goafem_singlelevelSC
 % NOTE that the mean-field and the variance are interpolated on a square grid 
 % [X,Y] in order to plot isolines (contour plot); Matlab does not provide a 
 % countour function for mesh-based functions.
 %
+% TR; 28 September 2022
+
     
   nvtx = size(xy,1);    % Number of vertices
  
@@ -65,15 +78,14 @@ function outline_domain(dom_type)
   if dom_type == 1
       unitsquare;
   elseif dom_type == 2
-      largesquare;
+      ellx;
   elseif dom_type == 3
       large_square;
   elseif dom_type == 4
-      ellx;
-  elseif dom_type == 5
       largecrack;
+  elseif dom_type == 5
+      largesquare;
   end
-  
 end % end child function
 
 

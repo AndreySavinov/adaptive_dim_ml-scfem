@@ -1,6 +1,4 @@
 function G = goafem_stochcol_M3matrices(grid,clcset,indlcset,list,m,m2,m3,listy,listy2,listy3)
-% COMMENTS NEED FINISHING
-% 
 % GOAFEM_STOCHCOL_M2MATRICES calculates modified integrals of Lagrange basis
 % functions associated with cubic expansions of diffusion coefficients
 %

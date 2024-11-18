@@ -1,9 +1,27 @@
 function [u_gal, z_gal, Anbc, Qnbc, qenbc, fnbc] = goafem_stochcol_fem_solver(coord, paras_fem, a_fun, rhs, qoi, varargin)
-% COMMENTS NEED FINISHING
+% GOAFEM_STOCHCOL_FEM_SOLVER assembles and solves linear system of Galerkin
+% discretization at collocation point coord
 %
-%  [u_gal, z_gal, Anbc] = goafem_stochcol_fem_solver(coord, paras_fem, a_fun, rhs, qoi)
+% input:
+%      coord     collocation point 
+%  paras_fem     parameters of current mesh
+%      a_fun     handle of diffusion coefficient
+%        rhs     handle of right-hand side of primal problem
+%        qoi     handle of right-hand side of dual problem (QoI)
+% output:
+%      u_gal         vector of coefficients for primal problem at point coord
+%      z_gal         vector of coefficients for dual problem at point coord
+%       Anbc         stiffness matrix
+%       Qnbc         mass matrix
+%      genbc         rhs vector for dual problem
+%       fnbc         rhs vector for primal
+
 %
+%   Natural boundary conditions apply. Dirichlet conditions
+%   must be explicitly enforced by calling function imposebc.
 %
+% TR, AS; 28 June 2024
+
 
 xy     = paras_fem{1};
 evt    = paras_fem{2};
@@ -46,10 +64,5 @@ z_gal = zeros(nvtx,1);
 z_gal(bound) = bc;
 z_gal(intern) = B\g;
 
-%u_gal(intern) = minres(A,b,1e-8,9999);
-%fprintf('solution maximum %9.5f\n',max(u_gal))
-%energy = sqrt(u_gal' * Anbc * u_gal);
-%fprintf(' solution energy %9.5f\n',energy);
-% fprintf('Solving took %.5f sec\n',toc(solvingTime));
 
 end

@@ -15,7 +15,7 @@ function [grid,clincombiset, indlincombiset, mindlincombiset, ...
 %  L_{\bm{m}}(\bm{y}) = \sum_{\substack{M(\bm{i})\geq \bm{m} \\ \bm{i} 
 %                       \in I}}c_{\bm{i}} L_{\bm{m}}^{M(\bm{i})}(\bm{y})
 %
-%   Latest modification: AS; 25 November 2022
+%   Latest modification: AS; 28 June 2024
 % Copyright (c) 2019 F. Xu
 
 [gr, gc] = size(grid);

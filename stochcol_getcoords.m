@@ -4,8 +4,8 @@ function coords = stochcol_getcoords(grid, rule_id)
 %
 %  coords = stochcol_getcoords(grid,rule_id)
 %
-%   TIFISS function: FX 28 November 2019
-% Copyright (c) 2019 F. Xu
+%   TIFISS function: AS 28 June 2024
+% Copyright (c) 2024 A. Savinov, F. Xu
 
 
 % coords is one-to-one with grid

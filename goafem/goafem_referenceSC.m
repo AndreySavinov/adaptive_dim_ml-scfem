@@ -4,15 +4,25 @@
 % SEE ALSO: referenceSC
 %           goafem_referenceSC_known
 %
-% TR; modified 14 October 2023
+% AS, TR; modified 28 June 2024
 
+if nargin(F_rhs{1}) < 3
 fprintf('\nRefining parameters...')
 startrefTime = tic;
 
 % Reference index set
-%w_ref = max(sum(X,2)) - M; % + 1;
-%X_ref = stochcol_getindexset(w_ref, M);
 X_ref = stochcol_getgrid([X; stochcol_margin_set(X)]);
+M = size(X_ref, 2);
+
+if Q~=0
+    X_ref = [X_ref, ones(size(X_ref, 1), Q)];
+    for q=1:Q
+        additional_dim = ones(1, M+Q);
+        additional_dim(end-q+1) = 2;
+        X_ref = [X_ref; additional_dim];
+    end
+    X_ref = stochcol_getgrid(X_ref);
+end
 
 paras_sg_ref = stochcol_sg(X_ref, rule_id);
 gridd_ref = paras_sg_ref{4};
@@ -34,7 +44,7 @@ G_ref = stochcol_gmatrices(gridd_ref, clincombiset_ref, ...
 % Refine all elements of the final mesh
 MMele_ref = (1:size(paras_fem{2}, 1))';
 MMedge_ref = (1:size(paras_detail{7}, 1))';
-% paras_fem_ref = stochcol_mesh_refine(MMele_ref, MMedge_ref, ...
+%paras_fem_ref = stochcol_mesh_refine(MMele_ref, MMedge_ref, ...
 %     paras_fem, paras_detail, pmethod);
 paras_fem_ref = stochcol_mesh_refine_p2(MMele_ref, MMedge_ref, ...
     paras_fem, paras_detail, pmethod);
@@ -46,24 +56,20 @@ sols_z_ref = zeros(length(paras_fem_ref{1}), size(coords_ref, 1));
 Gu = zeros(size(coords_ref, 1), 1);
 parfor k = 1:size(coords_ref, 1) %parfor
     % FE solution for a given collocation node
-    if nargin(F_rhs{1}) == 3 
-        F_rhs_tmp = F_rhs;
-        F_rhs_tmp{1} = @(x1, x2) F_rhs{1}(x1, x2, coords_ref(k, :));
-    else
-        F_rhs_tmp = F_rhs;
-    end
+    F_rhs_tmp = F_rhs;
     [u_gal, z_gal, A_ref] = goafem_stochcol_fem_solver(coords_ref(k, :), ...
         paras_fem_ref, aa, F_rhs_tmp, G_rhs);
     sols_u_ref(:, k) = u_gal;
     sols_z_ref(:, k) = z_gal;
     Gu(k) = u_gal' * A_ref * z_gal;
 end
-
+end
 %%
+if nargin(F_rhs{1}) < 3
 fprintf('\nComputing reference goal functional...')
 % Compute reference goal functional
 [~,~,~,~,wp_ref] = stochcol_multilag(paras_sg_ref{4}, paras_sg_ref{1}, paras_sg_ref{2}, paras_sg_ref{3}, rule_id, fun_p);
-
+tic;
 input_tmp = input;
 input_tmp(1) = size(paras_sg_ref{9},2);
 KL_DATA = stoch_kl(input_tmp,expansion_type);
@@ -88,41 +94,43 @@ if G_rhs{5} >= 0
         listy, listy2, sols_u_ref, sols_z_ref, F_rhs, G_rhs, rf_type, ...
         X_ref, fun_p, rule_id, aa, polys, 0);
 
-    if nargin(F_rhs{1}) == 3
-        F = goafem_compute_F(KL_DATA, paras_fem_ref, paras_sg_ref, list, ...
-            listy, listy2, sols_u_ref, sols_z_ref, F_rhs, G_rhs, rf_type, ...
-            X_ref, fun_p, rule_id, aa, polys);
-        Goal_unc_ref = pi*(sqrt(10) -1)/450;
-    else
-        [~, fz_ref] = goafem_stochcol_fem_setup(paras_fem_ref{1}, paras_fem_ref{2}, a_unit, F_rhs);
-        F = fz_ref.'*sols_z_ref*wp_ref;
-    end
+    [~, fz_ref] = goafem_stochcol_fem_setup(paras_fem_ref{1}, paras_fem_ref{2}, a_unit, F_rhs);
+    F = fz_ref.'*sols_z_ref*wp_ref;
     Goal_ref = Goal_unc_ref + F - B_ref;   
 else
+    toc
+    tic;
     Goal_ref = 0;
     for k = 1:size(coords_ref,1)
         Goal_ref = Goal_ref + wp_ref(k) * Gu(k);
     end
-    if nargin(F_rhs{1}) ~= 3
-        Goal_unc_ref = Goal_ref;
-    end
+    Goal_unc_ref = Goal_ref;
+    toc
+    tic;
     B_ref = goafem_doBilinearForm(KL_DATA, paras_fem_ref, paras_sg_ref, list, ...
             listy, listy2, sols_u_ref, sols_z_ref, F_rhs, G_rhs, rf_type, ...
             X_ref, fun_p, rule_id, aa, polys, 0);
-        
+     toc;   
     Goal_ref = 2*Goal_ref - B_ref;
 end
+else
+    Goal_unc_ref = pi*(sqrt(10) -1)/450;
+end
 %%
+%iter
+%Goal_unc_ref = 0.124120599;
 % Approximate error in goal functional for uncorrected/corrected variants
 GoalErr  = abs(Goal_unc_iter - Goal_unc_ref * ones(1,size(Goal_iter,2)));
 GoalErr2 = abs(Goal_iter - Goal_unc_ref * ones(1,size(Goal_iter,2)));
 
 % This quantity attempts to give a quantitive description of the 'effect'
 % of the bilinear form, but is typically not necessary for plots.
-GoalErr3 = abs(B_iter - Goal_unc_ref * ones(1,size(Goal_iter,2))); 
+% GoalErr3 = abs(B_iter - Goal_unc_ref * ones(1,size(Goal_iter,2))); 
 
-endrefTime = toc(startrefTime);
-fprintf('\n<strong>Elapsed time:</strong> %.2f sec\n',endrefTime);
+%if nargin(F_rhs{1}) < 3
+%endrefTime = toc(startrefTime);
+%fprintf('\n<strong>Elapsed time:</strong> %.2f sec\n',endrefTime);
+%end
 
 iterno = default('\nHow many iterations should be plotted? (Default = ALL of them)',size(dof,2));
 if iterno > size(dof,2)
@@ -164,7 +172,7 @@ axis ([l1 l9 l7 l8])
 
 effs_1 = error_dir_iter(1:iterno)./GoalErr(1:iterno);
 effs_2 = error_dir_iter(1:iterno)./GoalErr2(1:iterno);
-effs_3 = error_dir_iter(1:iterno)./GoalErr3(1:iterno);
+
 
 % Plot of Effectivity indices
 figure(16);
@@ -178,7 +186,7 @@ legend('$\bar\eta / |Q(u_{ref}) - \bar{Q}(u_{iter},z_{iter})|$' , ...
        '$\eta / |Q(u_{ref}) - \bar{Q}(u_{iter},z_{iter})|$' , ...
        'Location', 'Best', 'interpreter', 'latex')
 axis([min(dof_iterno)/2 max(dof_iterno)*2 min([effs_1,effs_2])/1.1 max([effs_1,effs_2])*1.1])
-%%
+%% to save .dat files for latex
 dof = dof_iterno;
 error_d = error_dir_iter(1:iterno);
 error_unc = abs(GoalErr(1:iterno));

@@ -1,7 +1,7 @@
 %STOCHCOL_ADAPTIVE_GLOBAL_SETTINGSP1 sets parameters for test problems and approximations
 %
-% Latest update: AB; 12 January 2023
-% Copyright (c) 2022 A. Bespalov, D. Silvester, F. Xu
+% Latest update: AS; 28 June 2024
+% Copyright (c) 2024 A. Bespalov, A. Savinov, D. Silvester, F. Xu
 
 % parameter space [-L, L]^M
 L = 1; % If L is changed, modifications will be needed to e.g. stochcol_1Dlagpoly.m
@@ -9,12 +9,14 @@ if sn ~= 3
     if sn == 8
         fprintf('\nFor this test problem, the dimension of parametric space is fixed as 9');
         M = 9;
+        Q = 0;
     elseif sn == 9
         fprintf('\nFor this test problem, the dimension of parametric space is fixed as 4');
         M = 4;
+        Q = 0;
     else
-        M = default('Dimension of parametric space (default is 1)', 1);
-        Q = default('Number of considered additional dimensions of parametric space (default is 1)', 1);
+        M = default('Dimension of parametric space (default is 4)', 4);
+        Q = default('Number of considered additional dimensions of parametric space (default is 0)', 0);
     end
 
     % function handle for the right-hand side w.r.t. spatial variables
@@ -182,7 +184,7 @@ if rv_id ~= 3
     fprintf('\nchoose type of collocation nodes');
     fprintf('\n     1.  Leja ')
     fprintf('\n     2.  CC\n');
-    rule_id = default('default is Leja nodes',2);
+    rule_id = default('default is CC nodes', 2);
     if ~ismember(rule_id,[1,2]) 
         error('Wrong type of collocation nodes!') 
     end 

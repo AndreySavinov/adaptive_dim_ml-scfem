@@ -3,6 +3,8 @@ function [nodes] = stochcol_nodes_leja_gauss(levels, varargin)
 %
 % input:
 %     levels    vector of levels
+%     varargin  indicator whether the points should be computed from
+%               scratch or use precomputed points
 %
 % output:
 %     nodes     cell of Leja collocation points
@@ -14,21 +16,15 @@ function [nodes] = stochcol_nodes_leja_gauss(levels, varargin)
 %
 %   mi := 2*i-1
 %
-% Given the first Leja point X(1) = 1, the Leja points are defined
+% Given the first Leja points X(1) = 0, X(2) = 1, X(3) = -1 the Leja points are defined
 % recursively in such a way that the function
 %
-% F(Y,X(1:N-1)) = ABS(PROD(Y-X(1:N-1)))
+% F(Y,X(1:N-1)) = ABS(EXP(PROD(Y-X(1:N-1)))
 %
-% is maximized over [-1,1] by Y = X(N). When more than one Y give the
-% same maximum of the function, we choose the smallest as X(N). The maximum
-% of the function aboveis computed by FMINBND (the algorithm is based on 
-% golden section search and parabolic interpolation).
+% is maximized over [0,+\infty] by Y = X(N). The produced Leja points are symmetric
 %
-% This function is based on lejapoints.m by Marco Caliari.
-% Available at http://profs.scienze.univr.it/~caliari/software.htm
-%
-%   TIFISS function: FX 15 April 2019
-% Copyright (c) 2019 F. Xu
+%   SCFEM function: AS 28 June 2024
+% Copyright (c) 2024 A. Savinov
 
 %%%%%%% 
 % TO LOAD NODES
