@@ -32,13 +32,16 @@ elseif rv_id == 2
     surname = ['gaussian', str_L, '_', str_sigma];
 elseif rv_id == 3
     pdf = @(x) ...
-        exp(-x.^2./2)/sqrt(2*pi)/erf(L/sqrt(2));
+        exp(-x.^2./(2*1^2))/sqrt(2*pi*1^2)/erf(L/sqrt(2)/1);
     
-    surname = ['gaussian_full', num2str(L), '_', num2str(1)];
+    surname = ['gaussian_full_', num2str(L), '_', 'sig_1'];
 end
 
 [polys, nodes] = stochcol_onedlagpolys(max_level, rule_id, 1);
-list = stochcol_uni_int(pdf, polys, L);
+%list = stochcol_uni_int(pdf, polys, L);
+[list, listy, listy2, ~, ~] = goafem_stochcol_uni_int(pdf, polys, L);
+
+
 
 if rule_id == 1 || rule_id == 3
     filename = ['precomputation_','leja_', num2str(max_level),'_'];
@@ -50,4 +53,4 @@ end
 
 filename = [filename, surname];
 
-save(filename, 'polys', 'list', 'nodes');
+save(filename, 'polys', 'list', 'nodes', 'listy', 'listy2');

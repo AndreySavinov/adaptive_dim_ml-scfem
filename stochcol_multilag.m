@@ -51,7 +51,7 @@ for i=1:gr
                     if rule_id ~=3
                         [~, weight]= stochcol_1Dlagpoly(nodes{1}(pts(k)),nodes{1},PDF);
                     else
-                        [~, weight]= stochcol_1Dlagpoly(nodes{1}(pts(k)),nodes{1},PDF,10);
+                        [~, weight]= stochcol_1Dlagpoly(nodes{1}(pts(k)),nodes{1},PDF,20);
                     end
                     temp = temp*weight;
                 end

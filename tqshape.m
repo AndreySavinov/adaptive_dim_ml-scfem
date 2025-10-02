@@ -12,7 +12,8 @@ function [psi,dpsids,dpsidt] = tqshape(s,t)
 %
 %    TIFISS function: QL; 17 April 2011.
 % Copyright (c) 2011 D.J. Silvester and Qifeng Liao
-      one = 1.0e0; zero=0.0e0;
+      n=length(s);
+      one = 1.0e0*ones(n,1); zero=0.0e0*one;
       xi(1) = t;
       xi(2) = one-s-t;
 	  xi(3) = s;

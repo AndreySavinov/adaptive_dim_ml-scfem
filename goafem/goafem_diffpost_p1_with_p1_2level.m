@@ -124,7 +124,7 @@ function [elerr_u, ederr_u, elerr_z, ederr_z, errest_u, errest_z] = ...
       end
       if qoi_fun{5} == 2
          [~, tmp] = goafem_stochcol_fem_setup(xy, evt, coeff_fun, qoi_fun);
-         gg = 200*tmp.'*u_gal*gg; 
+         gg = 2*tmp.'*u_gal*gg; 
       elseif qoi_fun{5} == 3
          E = qoi_fun{6};
          [~, tmp] = goafem_stochcol_fem_setup(xy, evt, coeff_fun, qoi_fun);

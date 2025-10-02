@@ -103,5 +103,15 @@ elseif expansion_type == 3 % unit
         KL_DATA.gradcoeff{m+1,1} = @(x, y) zeros(size(x));
         KL_DATA.gradcoeff{m+1,2} = @(x, y) zeros(size(y));
     end
+elseif expansion_type == 4 % sum of random variables
+    norv = input(1);
+    KL_DATA.coeff{1} = @(x, y) ones(size(x)); % a_0
+    KL_DATA.gradcoeff{1,1}= @(x, y) zeros(size(x)); % a_0_dx
+    KL_DATA.gradcoeff{1,2}= @(x, y) zeros(size(y)); % a_0_dy
+    for m = 1:norv
+        KL_DATA.coeff{m+1,1} = @(x, y) ones(size(x));
+        KL_DATA.gradcoeff{m+1,1} = @(x, y) zeros(size(x));
+        KL_DATA.gradcoeff{m+1,2} = @(x, y) zeros(size(y));
+    end
 end
 end

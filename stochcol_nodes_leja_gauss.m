@@ -30,11 +30,11 @@ function [nodes] = stochcol_nodes_leja_gauss(levels, varargin)
 % TO LOAD NODES
 
 if numel(varargin) == 0
-    try
-        load('precomputation_leja_9_gaussian_full10_1.mat', 'nodes')
-    catch
-        load('precomputation_leja9_gaussian_full_sig_1.mat', 'nodes')
-    end
+    %try
+        load('precomputation_leja_9_gaussian_full_20_sig_1_1.mat', 'nodes')%%%%Inf
+    %catch
+    %    load('precomputation_leja9_gaussian_full_sig_1.mat', 'nodes')
+    %end
 
     precomputed_nodes = nodes{1};
     clear nodes;
@@ -52,8 +52,8 @@ else
     xleja(1) = 0;
     xleja(2) = 1;
     xleja(3) = -1;
-    x_potential = 0:1e-6:10;
-    optimized_func = @(x) exp(-x.^2/2).*abs(x).*abs(x - xleja(2)).*abs(x - xleja(3));
+    x_potential = 0:1e-6:20;
+    optimized_func = @(x) exp(-(x.^2)/(2)).*abs(x).*abs(x - xleja(2)).*abs(x - xleja(3));
     format long;
     for k = 4:2:2*n-1
         [~, max_ind] = max(optimized_func(x_potential));

@@ -61,10 +61,23 @@ for i = 1:level
             for n = 1:N
                 integrand = @(x) fun_p(x).* polys{i}{m}(x).*polys{j}{n}(x);
                 integrand1 = @(x) x.* integrand(x);
-                integrand2 = @(x) x.* x.* integrand(x);            
-                list{i,j}(m,n) = integral(integrand,-L,L,'ArrayValued',true);
-                listy{i,j}(m,n) = integral(integrand1,-L,L,'ArrayValued',true);
-                listy2{i,j}(m,n) = integral(integrand2,-L,L,'ArrayValued',true);                
+                integrand2 = @(x) x.* x.* integrand(x);
+                
+                for L_current = -L:L-1
+                    list{i,j}(m,n) = list{i,j}(m,n) + integral(integrand,L_current,L_current+1,'ArrayValued',true, 'RelTol', 1e-20);
+                    listy{i,j}(m,n) = listy{i,j}(m,n) + integral(integrand1,L_current,L_current+1,'ArrayValued',true, 'RelTol', 1e-20);
+                    listy2{i,j}(m,n) = listy2{i,j}(m,n) + integral(integrand2,L_current,L_current+1,'ArrayValued',true, 'RelTol', 1e-20);
+                end
+                if abs(list{i,j}(m,n)) < 1e-10
+                    list{i,j}(m,n) = 0;
+                end                                
+                if abs(listy{i,j}(m,n)) < 1e-10
+                    listy{i,j}(m,n) = 0;
+                end
+                if abs(listy2{i,j}(m,n)) < 1e-10
+                    listy2{i,j}(m,n) = 0;
+                end
+                
                 counter = counter + 1;
                 try 
                     waitbar(counter/(2*tot),progress,'Generating polynomial data...') 
@@ -72,28 +85,29 @@ for i = 1:level
                 end
             end
         end
-        listy{i,j}(abs(listy{i,j}) <= 1e-16) = 0.0;
-        listy2{i,j}(abs(listy2{i,j}) <= 1e-16) = 0.0;
+        listy{i,j}(abs(listy{i,j}) <= 1e-9) = 0.0;
+        listy2{i,j}(abs(listy2{i,j}) <= 1e-9) = 0.0;
         list{j,i} = transpose(list{i,j});
         listy{j,i} = transpose(listy{i,j});
         listy2{j,i} = transpose(listy2{i,j});
         listy3{i,j} = zeros(M, N);
         listy4{i,j} = zeros(M, N);
-        for m = 1:M
-            for n = 1:N
-                integrand3 = @(x) x.* x.* x.* integrand(x);
-                integrand4 = @(x) x.* x.* x.* x.* integrand(x);
-                listy3{i,j}(m,n) = integral(integrand3,-L,L,'ArrayValued',true);
-                listy4{i,j}(m,n) = integral(integrand4,-L,L,'ArrayValued',true);
-                counter = counter + 1;
-                try 
-                    waitbar(counter/(2*tot),progress,'Generating polynomial data...')
-                catch
-                end
-            end
-        end
-        listy3{i,j}(abs(listy3{i,j}) <= 1e-16) = 0.0;
-        listy4{i,j}(abs(listy4{i,j}) <= 1e-16) = 0.0;
+%         for m = 1:M
+%             for n = 1:N
+%                 integrand = @(x) fun_p(x).* polys{i}{m}(x).*polys{j}{n}(x);
+%                 integrand3 = @(x) x.* x.* x.* integrand(x);
+%                 integrand4 = @(x) x.* x.* x.* x.* integrand(x);
+%                 listy3{i,j}(m,n) = integral(integrand3,-L,L,'ArrayValued',true);
+%                 listy4{i,j}(m,n) = integral(integrand4,-L,L,'ArrayValued',true);
+%                 counter = counter + 1;
+%                 try 
+%                     waitbar(counter/(2*tot),progress,'Generating polynomial data...')
+%                 catch
+%                 end
+%             end
+%         end
+%         listy3{i,j}(abs(listy3{i,j}) <= 1e-9) = 0.0;
+%         listy4{i,j}(abs(listy4{i,j}) <= 1e-9) = 0.0;
         listy3{j,i} = transpose(listy3{i,j});
         listy4{j,i} = transpose(listy4{i,j});
     end

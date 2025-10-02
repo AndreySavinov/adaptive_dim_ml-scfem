@@ -1,6 +1,6 @@
 function [perrest_u, perrest_z] = ...
     goafem_stochcol_interpost(X_new, errest2s_u, errest2s_z, ...
-    gridd_diff, list, rule_id)
+    gridd_diff, list, rule_id, varargin)
 % GOAFEM_STOCHCOL_INTERPOST computes parametric errors.
 %
 % input:

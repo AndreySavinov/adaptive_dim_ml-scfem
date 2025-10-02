@@ -1,6 +1,6 @@
 function [perrests_u, perrests_z] = ...
     goafem_stochcol_est_parametric(X_diff, errest2s_u, errest2s_z, ...
-    gridd_diff, list, rule_id)
+    gridd_diff, list, rule_id, varargin)
 % GOAFEM_STOCHCOL_EST_PARAMETRIC computes indexwise parametric error estimator
 %
 % input:

@@ -18,8 +18,11 @@
 % Copyright (c) 2018 A. Bespalov, L. Rocchi
 
 % File name
-  filename = 'exp_convection_nl_M_8.dat';
-
+  filename = 'kl_100u_squared_tri_setup4_v1.dat';
+  %'eigel_miollifier.dat';
+  %'kl_square_domain.dat';
+  %'kl_second_moment_nl.dat';
+  
 % Create data structure
   data = [(1:iter)', ...
           (dof(1:iter))',                 ... 

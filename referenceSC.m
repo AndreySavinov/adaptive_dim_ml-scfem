@@ -34,25 +34,25 @@ sols_ref = zeros(length(paras_fem_ref{1}), size(coords_ref, 1));
 parfor k = 1:size(coords_ref, 1)
     % FE solution for a given collocation node
     [x_gal, ~] = stochcol_fem_solver(coords_ref(k, :), paras_fem_ref, ...
-        aa, rhs_fun);
+        aa, F_rhs{1});
     sols_ref(:, k) = x_gal;
 end
 fprintf('done.\n')
-
+%%
 fprintf('\ncomputing and plotting effectivity indices... ')
 % Reference error is measured in Soblev norm, so we need the stiffness
 % matrix corresponding to the unity diffusion coefficient
 unit_coeff = @(x1, x2) ones(size(x1));
 [A_unit_coeff,~] = stochcol_fem_setup(paras_fem_ref{1}, paras_fem_ref{2}, ...
-    unit_coeff, rhs_fun);
+    unit_coeff, F_rhs{1});
 parfor k = 1:iter
-    ref_err(k) = stochcol_ref_err(sols_iter{k}, paras_sg_iter{k}, ...
-        paras_fem_iter{k}, sols_ref, paras_sg_ref, paras_fem_ref, ...
+    ref_err(k) = stochcol_ref_err(sols_u_iter{k}, paras_sg_iter{k}, ...
+        paras_fem_iter{k}, sols_u_ref, paras_sg_ref, paras_fem_ref, ...
         polys, G_ref, A_unit_coeff);
-    eff_ind_iter(k) = error_iter(k)/ref_err(k);
-    eff_ind_d_iter(k) = error_d_iter(k)/ref_err(k);
+    eff_ind_iter(k) = error_iter_u(k)/ref_err(k);
+    eff_ind_d_iter(k) = error_dir_iter_u(k)/ref_err(k);
 end
-
+%%
 % Effectivity indices
 dof=dof(1,1:iter);
 figure(97);

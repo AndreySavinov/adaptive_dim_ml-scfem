@@ -11,7 +11,9 @@ for i = 1:level
         for m = 1:M
             for n = 1:N
                 integrand = @(x) fun_p(x).*polys{i}{m}(x).*polys{j}{n}(x);
-                list{i,j}(m,n) = integral(integrand,-L,L,'ArrayValued',true);
+                for L_current = -L:L-1
+                    list{i,j}(m,n) = list{i,j}(m,n) + integral(integrand,L_current,L_current+1,'ArrayValued',true, 'RelTol', 1e-20);
+                end
                 if abs(list{i,j}(m,n)) < 1e-10
                     list{i,j}(m,n) = 0;
                 end

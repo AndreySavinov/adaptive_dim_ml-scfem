@@ -110,7 +110,7 @@ elseif qoi_fun{5} == 1
 elseif qoi_fun{5} == 2
     g = assembly(ge,evt,n);
     int_w_u = g.'*u_gal;
-    g = 200*int_w_u*g;
+    g = 2*int_w_u*g;
 elseif qoi_fun{5} == 3
     E = qoi_fun{6};
     g = assembly(ge,evt,n);

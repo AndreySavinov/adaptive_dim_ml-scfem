@@ -5,43 +5,47 @@ clear
 close ALL
 clc % AB
 % set parameters
-fprintf('\n Numerical solution of goal-oriented stochastic diffusion problem.');
+fprintf('\n Numerical solution of goal-oriented stochastic log-normal diffusion problem and infinite number of parameters.');
 fprintf('\n Choose specific example or specify your choice:');
-fprintf('\n     1.  L-shape domain: [-1,1]^2 - [-1,0)^2, standard truncated affine Eigel expansion, unit RHS, integral over a square subdomain')
-fprintf('\n     2.  Left-Crack domain [-1,1]^2 - [-1,0)x{0}, exponent of truncated Eigel expansion, unit RHS, estimation of pointwise values');
-fprintf('\n     3.  Unit square domain: [0,1]^2, standard truncated affine Eigel expansion, Mommer-Stevenson RHS, second moment of a linear goal functional')
-fprintf('\n     4.  L-shape domain: [-1,1]^2 - [-1,0)^2, exponent of truncated Eigel expansion, unit RHS, non-linear convection')
-fprintf('\n     5.  One-Peak Problem: square domain: [-4,4]^2, unit coefficient, random one-peak source, intergral of u^2');
-fprintf('\n     0.  Your Choice\n')
+fprintf('\n     1.  L-shape domain: [-1,1]^2 - [-1,0)^2, log-normal + Eigel expansion, unit RHS, estimation of pointwise values')
+fprintf('\n     2.  L-shape domain: [-1,1]^2 - [-1,0)^2, log-normal + separable exponential, unit RHS, integral over a square subdomain');
+fprintf('\n     3.  Large square domain: [-1,1]^2, log-normal + Eigel expansion, unit RHS, non-linear convection')
+fprintf('\n     4.  Unit square domain: [0,1]^2, log-normal + separable exponential, Mommer-Stevenson RHS, u^2 for Sub Domain Integral')
+fprintf('\n     0.  Customized Choice (including non log-normal diffusion and fixed number of parameters)\n')
 sn = default('default = 1', 1);
 
-if ismember(sn,[1, 2, 3, 4, 5])
-   QOI_type = sn;
+if ismember(sn,[1, 2, 3, 4])
    if ismember(sn,[1, 3])
        expansion_type = 2;
-       rf_type = 3;
-   elseif ismember(sn,[2, 4])
-       expansion_type = 2;
        rf_type = 1;
-   else
-       rf_type = 3;
-       expansion_type = 3;
-       QOI_type = 7;
-       M = 2;
-       Q = 0;
+   elseif ismember(sn,[2, 4])
+       expansion_type = 1;
+       rf_type = 1;
    end
-   if ismember(sn,[1, 4])
+   if sn == 1
+       QOI_type = 2;
        dom_type = 2;
        RHS_type = 1;
+       M = 1;
+       Q = 1;
    elseif sn == 2
-       dom_type = 3;
+       QOI_type = 1;
+       dom_type = 2;
        RHS_type = 1;
+       M = 3;
+       Q = 2;
    elseif sn == 3
+       QOI_type = 4;
+       dom_type = 4;
+       RHS_type = 1;
+       M = 1;
+       Q = 1;
+   elseif sn == 4
+       QOI_type = 5;
        dom_type = 1;
        RHS_type = 2;
-   else
-       dom_type = 5;
-       RHS_type = 4;
+       M = 2;
+       Q = 2;
    end
 else
     % domain type
@@ -67,14 +71,32 @@ else
     fprintf('\n     1.  separable exponential ')
     fprintf('\n     2.  synthetic (Eigel slow) expansion');
     fprintf('\n     3.  unit\n');
+   % fprintf('\n     4.  sum of random parameters\n');
     expansion_type  = default('default = 2',2);
     if ~ismember(expansion_type,[1,2,3])
         error('Wrong selection for expansion type!')
     end
-end    
+end
+
+if ~ismember(sn,[1,2,3,4])
+    fprintf('\nchoose type of random variable ');
+    fprintf('\n     1.  Uniform ')
+    fprintf('\n     2.  Truncated Gaussian');
+    fprintf('\n     3.  Gaussian\n');
+    rv_id = default('default = 1', 1);
+else
+    rv_id = 3;
+end
+if ~ismember(rv_id,[1,2,3])
+    error('Wrong selection for type of random variable!')
+end
     
 if rf_type == 1
-    system('copy .\test_problems\exponent_trunc_affine.m               .\stochcol_diffusion_grad_and_coeff.m');
+    if rv_id == 3
+        system('copy .\test_problems\exponent_log_normal.m               .\stochcol_diffusion_grad_and_coeff.m');
+    else
+        system('copy .\test_problems\exponent_trunc_affine.m               .\stochcol_diffusion_grad_and_coeff.m');
+    end
 elseif rf_type == 2
     system('copy .\test_problems\square_trunc_affine.m                 .\stochcol_diffusion_grad_and_coeff.m');
 elseif rf_type == 3
@@ -83,16 +105,34 @@ end
 
 
 if expansion_type == 1 % seperable exponential
-    sigma = default('SE standard deviation (default is 0.5)', 0.5);
-    ax = 1;
-    ay = 1;
-    correl_x = default('correlation length in x (default is 1)', 1);
-    correl_y = default('correlation length in y (default is 1)', 1);
+    if sn==2
+        sigma = 0.5;
+        ax = 1;
+        ay = 1;
+        correl_x = 1;
+        correl_y = 1;
+    elseif sn == 4
+        sigma = 0.5;
+        ax = 1;
+        ay = 1;
+        correl_x = 0.5;
+        correl_y = 0.5;
+    else
+        sigma = default('SE standard deviation (default is 0.5)', 0.5);
+        ax = 1;
+        ay = 1;
+        correl_x = default('correlation length in x (default is 1)', 1);
+        correl_y = default('correlation length in y (default is 1)', 1);
+    end
     system('copy .\test_problems\separable_exponential_spatial_expansion_coeff.m       .\stochcol_diffusion_coeff_spatial_expansion.m');
     system('copy .\test_problems\separable_exponential_spatial_expansion_grad_x1.m     .\stochcol_diffusion_grad_x1_spatial_expansion.m');
     system('copy .\test_problems\separable_exponential_spatial_expansion_grad_x2.m     .\stochcol_diffusion_grad_x2_spatial_expansion.m');
 elseif expansion_type == 2 % Eigel
-    sigma = default('Eigel standard deviation (default is 0.547)', 0.547);
+    if ~ismember(sn,[1,2,3,4])
+        sigma = default('Eigel standard deviation (default is 0.547)', 0.547);
+    else
+        sigma = 0.547;
+    end
     system('copy .\test_problems\eigel_spatial_expansion_coeff.m       .\stochcol_diffusion_coeff_spatial_expansion.m');
     system('copy .\test_problems\eigel_spatial_expansion_grad_x1.m     .\stochcol_diffusion_grad_x1_spatial_expansion.m');
     system('copy .\test_problems\eigel_spatial_expansion_grad_x2.m     .\stochcol_diffusion_grad_x2_spatial_expansion.m');
@@ -101,18 +141,10 @@ elseif expansion_type == 3 % unit
     system('copy .\test_problems\unit_coeff.m                          .\stochcol_diffusion_coeff_spatial_expansion.m');
     system('copy .\test_problems\zero_grad_x1.m                        .\stochcol_diffusion_grad_x1_spatial_expansion.m');
     system('copy .\test_problems\zero_grad_x2.m                        .\stochcol_diffusion_grad_x2_spatial_expansion.m');
-end
-
-fprintf('\nchoose type of random variable ');
-fprintf('\n     1.  Uniform ')
-fprintf('\n     2.  Truncated Gaussian');
-fprintf('\n     3.  Gaussian\n');
-rv_id = default('default = 1', 1);
-if ~ismember(rv_id,[1,2,3])
-    error('Wrong selection for type of random variable!')
-end
-if rv_id == 2
-    sigma = 0.5;
+elseif expansion_type == 4 % unit
+    system('copy .\test_problems\true_gaussian.m                       .\stochcol_diffusion_coeff_spatial_expansion.m');
+    system('copy .\test_problems\zero_grad_x1.m                        .\stochcol_diffusion_grad_x1_spatial_expansion.m');
+    system('copy .\test_problems\zero_grad_x2.m                        .\stochcol_diffusion_grad_x2_spatial_expansion.m');
 end
 
 fprintf('\n Proceeding with P1 finite element approximations. \n')
@@ -212,7 +244,7 @@ end
 
 % parameter space [-L, L]^M
 L = 1;
-if sn~=5
+if ~ismember(sn,[1,2,3,4])
     M = default('dimension of parametric space (default is 4)',4);
     Q = default('Number of considered additional dimensions of parametric space (default is 0)', 0);
 end
@@ -239,7 +271,7 @@ if expansion_type == 1 % seperable exponential
     input = [M, ax, ay, correl_x, correl_y, sigma];
 elseif expansion_type == 2 % Eigel
     input = [M, sigma, 2];
-elseif expansion_type == 3 % Eigel
+elseif expansion_type == 3 || 4 % unit of true gaussian
     input = M;
 end
 %KL_DATA = stoch_kl(input,expansion_type);
@@ -277,7 +309,7 @@ elseif rv_id == 2 % truncated Gaussian
     rv_name = ['gaussian_','sig_', num2str(sigma_g)];
 elseif rv_id == 3 %Gaussian
     fun_p = @(x) ...
-        exp(-x.^2./2)/sqrt(2*pi)/erf(10/sqrt(2));
+        exp(-x.^2./(2*1.1^2))/sqrt(2*pi*1.1^2)/erf(20/sqrt(2)/1.1);
     rv_name = ['gaussian_full','sig_', num2str(1)];
 end
 
@@ -299,7 +331,7 @@ try
     elseif rule_id == 2 && rv_id == 2 && L == 1 && sigma_g == 1 && max_level <= 7
         load('precomputation_cc7_gaussian_sig_1.mat')
     elseif rv_id == 3 && max_level <= 9 
-        load('precomputation_leja9_gaussian_full_sig_1.mat')
+        load('precomputation_leja_9_gaussian_full_20_sig_1_1.mat')
     else
         error('Precomputation data does not exist.')
     end
@@ -308,11 +340,15 @@ catch
     pause(1);
     fprintf('This data can be computed, but might take a long time depending on parameter choice (possibly ~6 hours). \n');
     pause(1);
-    run = default('Do you still want to continue (default YES)? YES/NO (1/0)', 1);
+    if rv_id~=3
+        run = default('Do you still want to continue (default YES)? YES/NO (1/0)', 1);
+    else 
+        run = 0;
+    end
     if run == 1
         polys = stochcol_onedlagpolys(max_level, rule_id);
         [list, listy, listy2, listy3, listy4] = goafem_stochcol_uni_int(fun_p, polys, L);
-        if rule_id == 1
+        if rule_id == 1 
             filename = ['precomputation_','leja', num2str(max_level),'_',rv_name];
         elseif rule_id == 2
             filename = ['precomputation_','cc', num2str(max_level),'_',rv_name];

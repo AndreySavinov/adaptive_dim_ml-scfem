@@ -70,7 +70,7 @@ switch rf_type
                  Am{m} = 2*Am{m};
              end
             IntA{m} = sols_u' * Am{m} * sols_z;
-%             IntA{m} = IntA{m}.*(abs(IntA{m}) > 1e-16);
+            % IntA{m} = IntA{m}.*(abs(IntA{m}) > 1e-16);%
             Bform1 = Bform1 + sum(dot(IntY{m}, sols_u' * Am{m} * sols_z));
         end
         
@@ -79,7 +79,7 @@ switch rf_type
         IntY2 = cell(M,M);
         IntA2 = cell(M,M);
         for m = 1:M % am*am' and am^2 contribution
-            for m2 = m:M
+            for m2 = m:M %m:M
                 IntY2{m,m2} = goafem_stochcol_M2matrices(paras_sg{4}, paras_sg{5}, ...
                                 paras_sg{6}, list, m, m2, listy, listy2);
                 am2{m,m2} = @(x,y) KL_DATA.coeff{m+1}(x,y).*KL_DATA.coeff{m2+1}(x,y); 
@@ -89,7 +89,7 @@ switch rf_type
                     Am2{m,m2} = 2*Am2{m,m2};
                 end
                 IntA2{m,m2} = sols_u' * Am2{m,m2} * sols_z;
-%                 IntA2{m,m2} = IntA2{m,m2}.*(abs(IntA2{m,m2}) > 1e-16);
+                %IntA2{m,m2} = IntA2{m,m2}.*(abs(IntA2{m,m2}) > 1e-16);%
                 Bform2 = Bform2 + sum(dot(IntY2{m,m2}, sols_u' * Am2{m,m2} * sols_z),[1,2]);
             end
         end
@@ -101,8 +101,9 @@ switch rf_type
         if numel(varargin) > 0
             Q = varargin{1};
         end
-        X_diff = stochcol_rmargin_set(X, stochcol_margin_set(X), Q);
-        X_reft = stochcol_getgrid([X, ones(size(X, 1), Q); X_diff]);
+        X_diff = stochcol_rmargin_set(X, stochcol_margin_set(X), 0);
+        X_reft = stochcol_getgrid([X, ones(size(X, 1), Q); X_diff,  ones(size(X_diff, 1), Q)]);
+        %%X_reft = stochcol_getgrid([X; X_diff]);
         paras_sg_reft = stochcol_sg(X_reft, rule_id);
         coords_reft = paras_sg_reft{9};     
         
@@ -117,7 +118,7 @@ switch rf_type
         IntY = zeros(K2,1);
         [~, KA, ~] = intersect(coords_reft, coords, 'rows');
         [~,~,~,~,IntY(:)] = stochcol_multilag(paras_sg_reft{4}, paras_sg_reft{1}, paras_sg_reft{2}, paras_sg_reft{3}, rule_id, fun_p);
-        parfor k = 1:K2
+        parfor k = 1:K2%parfor
             [ugalreft, zgalreft, Ak] = goafem_stochcol_fem_solver(coords_reft(k,:), ...
                             paras_fem, aa, rhs_fun, qoi_fun);
             if sum(k == KA)

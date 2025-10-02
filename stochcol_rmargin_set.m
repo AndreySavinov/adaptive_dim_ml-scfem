@@ -1,4 +1,4 @@
-function Y = stochcol_rmargin_set(X, XMargin, Q)
+function Y = stochcol_rmargin_set(X, XMargin, varargin)
 %STOCHCOL_RMARGIN_SET compute the reduced margin set of the downward closed set
 %  Y = stochcol_rmargin_set(X, XMargin)
 %   inputs: X         index set
@@ -9,6 +9,11 @@ function Y = stochcol_rmargin_set(X, XMargin, Q)
 % Copyright (c) 2019 F. Xu
 
 % prepare X
+if numel(varargin) == 0
+    Q = 0;
+else
+    Q = varargin{1};
+end
 X = sortrows(X);
 % test whether X is downward closed;
 Xdc = stochcol_getgrid(X);

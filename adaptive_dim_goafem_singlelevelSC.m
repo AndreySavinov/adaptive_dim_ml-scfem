@@ -1,16 +1,22 @@
-%GOAFEM_SINGLELEVELSC solves goal-oriented stochastic diffusion problem using adaptive single-level SC-FEM
+%DIM_ADAPT_GOAFEM_SINGLELEVELSC solves goal-oriented stochastic diffusion problem using adaptive single-level SC-FEM
 %
 % Main driver for running goal-oriented single-level adaptive stochastic collocation algorithm
 %
-% Latest update: AS; 28 June 2024
+% Latest update: AS; 12 June 2025
 % Copyright (c) 2024 A. Bespalov, T. Round, A. Savinov
 
 addpath('goafem')
-goafem_stochcol_adaptive_global_settings;
-if sn~=5
-    delta = default('\nSet the error tolerance (default is 1e-5)',1e-5);
+adaptive_dim_goafem_stochcol_adaptive_global_settings;
+if sn==1
+    delta = default('\nSet the error tolerance (default is 3e-4)',3e-4);
+elseif sn==2
+    delta = default('\nSet the error tolerance (default is 4e-4)',4e-4);
+elseif sn==3
+    delta = default('\nSet the error tolerance (default is 2e-4)',2e-4);
+elseif sn==4
+    delta = default('\nSet the error tolerance (default is 8e-5)',8e-5);
 else
-    delta = default('\nSet the error tolerance (default is 3e-2)',3e-2);
+    delta = default('\nSet the error tolerance (default is 1e-4)',1e-4);
 end
 adaptmax = default('\nSet the number of adaptive steps (default is 50)', 50);
 cpointsmax = 7;
@@ -139,14 +145,12 @@ while tot_err_direct >= delta && iter <= adaptmax
             sols_u_ml{k} = u_gal;
             sols_z_ml{k} = z_gal;
             if rv_id == 3
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%
                 mesh_x = paras_fem{1}(:,1);
                 mesh_y = paras_fem{1}(:,2);
                 a_coord = aa(mesh_x, mesh_y, coords(k, :));
                 a_min_z = min(a_coord);
                 errests_u(k) = errest_u/a_min_z;
                 errests_z(k) = errest_z/a_min_z;
-            %%%%%%%%%%%%%%%%%%%%%%%%%
             else
                 errests_u(k) = errest_u;
                 errests_z(k) = errest_z;
@@ -156,7 +160,7 @@ while tot_err_direct >= delta && iter <= adaptmax
             ederrs_u(:, k) = ederr_u;
             ederrs_z(:, k) = ederr_z;
             Msetsu{k} = Msetu;
-            Msetsz{k} = Msetz;%%%%%%%%%%%%%%
+            Msetsz{k} = Msetz;
             A{k} = Anbc;
             Gu(k) = u_gal' * Anbc * z_gal;
         end %end parfor k
@@ -180,28 +184,23 @@ while tot_err_direct >= delta && iter <= adaptmax
         close all
     else %iter > 0
         fprintf('\n\nIteration %i \n',iter)
-        fprintf(['Primal spatial error indicator', ...
-         '    is %10.4e \n'],serrest_u)
-        fprintf(['Primal parametric error indicator', ...
-         ' is %10.4e \n'],perrest_u)
-        fprintf(['Dual spatial error indicator', ...
-         '    is %10.4e \n'],serrest_z)
-        fprintf(['Dual parametric error indicator', ...
-         ' is %10.4e \n'],perrest_z)
+        fprintf(['Primal spatial error indicator    ', ...
+         'is %10.4e \n'],serrest_u)
+        fprintf(['Primal parametric error indicator ', ...
+         'is %10.4e \n'],perrest_u)
+        fprintf(['Dual spatial error indicator      ', ...
+         'is %10.4e \n'],serrest_z)
+        fprintf(['Dual parametric error indicator   ', ...
+         'is %10.4e \n'],perrest_z)
         if spind == 1
             fprintf('Parametric enrichment step ... new indices added \n');
             % Determine marked index set
             
             if new_dim_ind == 0 || Q == 0
-                if G_rhs{5} >= 0
-                    [Mset] = ...
-                        goafem_mark_combine(Mset_u(:, 1:M), Mset_z(:, 1:M), markedgelem, 3, ...
-                                            perrests_u(IE)', perrests_u(IF)'+perrests_z(IF)');%%was IE in the last one 
-                else
-                    [Mset] = ...
-                        goafem_mark_combine(Mset_u(:, 1:M), Mset_z(:, 1:M), markedgelem, 3, ...
-                                            perrests_u(IE)', perrests_z(IF)');%%was IE in the last one%%%%%%%%%%%%%%%% (IF is correct)
-                end
+                [Mset] = ...
+                    goafem_mark_combine(Mset_u(:, 1:M), Mset_z(:, 1:M), markedgelem, 3, ...
+                                        perrests_u(IE)', perrests_u(IF)'+perrests_z(IF)');
+               
                 disp(Mset)
                 X = stochcol_getgrid([X; Mset]);
             else
@@ -212,7 +211,13 @@ while tot_err_direct >= delta && iter <= adaptmax
                 fprintf('New dimensionality is %d \n', new_dim)
                 paras_sg = stochcol_sg([X, ones(size(X,1), new_dim-M+Q)], rule_id);
                 gridd_diff = [gridd_diff, ones(size(gridd_diff, 1), new_dim-M)];
-                X = stochcol_getgrid([X, ones(size(X, 1), new_dim-M); Mset(1:new_dim)]);
+                X_tmp = [X, ones(size(X, 1), new_dim-M)];
+                for q=1:(new_dim-M)
+                    new_row = ones(1, size(X_tmp, 2));
+                    new_row(end-q+1) = 2;
+                    X_tmp = [X_tmp; new_row];
+                end
+                X = stochcol_getgrid(X_tmp);
                 M = new_dim;
             end
             
@@ -303,7 +308,7 @@ while tot_err_direct >= delta && iter <= adaptmax
                 ederrs_u_temp(:, k) = ederr_u;
                 ederrs_z_temp(:, k) = ederr_z;
                 Msetsu_temp{k} = Msetu;
-                Msetsz_temp{k} = Msetz;%%%%%%%%%%
+                Msetsz_temp{k} = Msetz;
             end % end parfor
             for k = 1:length(IC)
                 elerrs_u_new(:,IC(k)) = elerrs_u_temp(:, k);
@@ -333,7 +338,7 @@ while tot_err_direct >= delta && iter <= adaptmax
             errests_u = errests_u_new;
             errests_z = errests_z_new;
             Msetsu = Msetsu_new;
-            Msetsz = Msetsz_new;%%%%%%%%%%%
+            Msetsz = Msetsz_new;
             for k = 1:size(A,2)
                 Gu(k) = sols_u(:,k)' * A{k} * sols_z(:,k);
             end
@@ -354,21 +359,15 @@ while tot_err_direct >= delta && iter <= adaptmax
         else % spind == 0
             fprintf('Spatial refinement step...\n');
             % Mesh refinement
-            if G_rhs{5} >= 0
-                [MMele, MMedge] = ...
-                        goafem_mark_combine(Msetu, Msetz, markedgelem, 3, ... %%%%%%%%
-                                            elerrs_u, elerrs_u + elerrs_z, ...%%%%%%%%%%%%% 
-                                            ederrs_u, ederrs_u + ederrs_z, paras_detail);%%%%%%%%%%%% 
-            else
-                [MMele, MMedge] = ...
-                        goafem_mark_combine(Msetu, Msetu, markedgelem, 3, ...%%%%%%%%%%%%%%%
-                                            elerrs_u, elerrs_z, ...
-                                            ederrs_u, ederrs_z, paras_detail);%%%%%%%%%%%%%%%%%%%%%
-            end
+            [MMele, MMedge] = ...
+                   goafem_mark_combine(Msetu, Msetz, markedgelem, 3, ... 
+                                       elerrs_u, elerrs_u + elerrs_z, ... 
+                                       ederrs_u, ederrs_u + ederrs_z, paras_detail); 
+       
             fprintf('original number of elements is %g\n',length(paras_fem{2}(:,1)));
             paras_fem = stochcol_mesh_refine(MMele, MMedge, paras_fem, ...
                                              paras_detail, pmethod);
-            fprintf('     new number of elements is %g\n\n',length(paras_fem{2}(:,1)));
+            fprintf('new number of elements      is %g\n\n',length(paras_fem{2}(:,1)));
             % Collection of edge information for flux jump computation and
             % outputs of linear detail space Y grid-generator based on
             % refined mesh
@@ -411,20 +410,18 @@ while tot_err_direct >= delta && iter <= adaptmax
                 ederrs_u(:, k) = ederr_u;
                 ederrs_z(:, k) = ederr_z;
                 if rv_id == 3
-                %%%%%%%%%%%%%%%%%%%%%%%%%%%
                     mesh_x = paras_fem{1}(:,1);
                     mesh_y = paras_fem{1}(:,2);
                     a_coord = aa(mesh_x, mesh_y, coords(k, :));
                     a_min_z = min(a_coord);
                     errests_u(k) = errest_u/a_min_z;
                     errests_z(k) = errest_z/a_min_z;
-                %%%%%%%%%%%%%%%%%%%%%%%%%
                 else
                     errests_u(k) = errest_u;
                     errests_z(k) = errest_z;
                 end
                 Msetsu{k} = Msetu;
-                Msetsz{k} = Msetz;%%%%%%%%%%%%%%
+                Msetsz{k} = Msetz;
                 A{k} = Anbc;
                 Gu(k) = u_gal' * Anbc * z_gal;
             end % end for
@@ -500,13 +497,17 @@ while tot_err_direct >= delta && iter <= adaptmax
     if Q ~= 0 %dimensionaly adaptive
         n = size(X_diff,1);
         costs = ones(1, n);
-        for i = 1:n
+       for i = 1:n
             row = X_diff(i, :);
-            max_dir = find(row > 1, M+Q, 'last');
-            costs(i) = costs(i)*max_dir(end);
             for j=1:M+1
                 if row(j)>1
-                    costs(i) = costs(i)*(2^(row(j)-1) + 1);
+                    if rule_id == 2
+                        costs(i) = costs(i)*(2^(row(j)-1)+1);
+                    elseif rule_id == 3
+                        costs(i) = costs(i)*(2*row(j)-1);
+                    else
+                        costs(i) = costs(i)*row(j);
+                    end
                 end
             end
         end 
@@ -519,31 +520,26 @@ while tot_err_direct >= delta && iter <= adaptmax
         %disp(X_diff)
         %disp(perrests)
             
-        if new_dim_err_max > sum(perrests_u(Q+1:n)./costs(Q+1:n)) + sum(perrests_z(Q+1:n)./costs(Q+1:n))
+        if  sum(perrests_new_dim_u + perrests_new_dim_z) > sum(perrests_u(Q+1:n)./costs(Q+1:n)) + sum(perrests_z(Q+1:n)./costs(Q+1:n))
             Mset = X_diff(ind_max, :);
             new_dim_ind = 1;
         else
-            [Mset_u, ~] = dorfler_marking(X_diff(Q+1:n, :), perrests_u(Q+1:n)./costs(Q+1:n), pmthreshold);
-            [Mset_z, ~] = dorfler_marking(X_diff(Q+1:n, :), perrests_u(Q+1:n)./costs(Q+1:n) +  perrests_z(Q+1:n)./costs(Q+1:n), pmthreshold); 
-            
+            [Mset_u, ~] = dorfler_marking(X_diff(Q+1:n, :), perrests_u(Q+1:n), pmthreshold);
+            [Mset_z, ~] = dorfler_marking(X_diff(Q+1:n, :), perrests_u(Q+1:n) +  perrests_z(Q+1:n), pmthreshold); 
             [~, ~, IE] = intersect(Mset_u, X_diff, 'rows');
             [~, ~, IF] = intersect(Mset_z, X_diff, 'rows');
             new_dim_ind = 0;
         end
     else
         [Mset_u, ~] = dorfler_marking(X_diff, perrests_u, pmthreshold);
-        if G_rhs{5} >= 0
-            [Mset_z, ~] = dorfler_marking(X_diff, perrests_u + perrests_z, pmthreshold); %%%%%%%%%%%%% 
-        else
-            [Mset_z, ~] = dorfler_marking(X_diff, perrests_z, pmthreshold); %%%%%%%%%%%%%%%%%
-        end
+        [Mset_z, ~] = dorfler_marking(X_diff, perrests_u + perrests_z, pmthreshold); 
         [~, ~, IE] = intersect(Mset_u, X_diff, 'rows');
         [~, ~, IF] = intersect(Mset_z, X_diff, 'rows');
         new_dim_ind = 0;
     end
     
     
-    spind = goafem_indicator(serrest_u, serrest_z, perrest_u, perrest_z, 3);%%%%%%%%%%%%%%%%%%%
+    spind = goafem_indicator(serrest_u, serrest_z, perrest_u, perrest_z, 3);
      
     % total error indicator
     tot_err_est_u = serrest_u + perrest_u;
@@ -610,18 +606,18 @@ while tot_err_direct >= delta && iter <= adaptmax
                              
     % output error estimates
      if iter==0, fprintf('\n\nIteration %i \n',iter), end
-    fprintf(['   primal spatial error estimate', ...
-    ' is %10.4e  vs  %10.4e (spatial indicator) \n'],serrestdir_u,serrest_u)
-    fprintf(['   dual spatial error estimate', ...
-    ' is %10.4e  vs  %10.4e (spatial indicator) \n'],serrestdir_z,serrest_z)
-    fprintf([' primal parametric error estimate', ...
-    ' is %10.4e  vs  %10.4e (parametric indicator)\n'],perrestdir_u,perrest_u)
-    fprintf([' dual parametric error estimate', ...
-    ' is %10.4e  vs  %10.4e (parametric indicator)\n'],perrestdir_z,perrest_z)
-    fprintf(['overall estimate from indicators', ...
-        ' is %10.4e '],tot_err_est)
-    fprintf(['\n   overall direct error estimate', ...
-    ' is <strong> %10.4e </strong>\n'],tot_err_direct)
+    fprintf(['primal spatial error estimate     ', ...
+    'is %10.4e  vs  %10.4e (spatial indicator)   \n'],serrestdir_u,serrest_u)
+    fprintf(['dual spatial error estimate       ', ...
+    'is %10.4e  vs  %10.4e (spatial indicator)   \n'],serrestdir_z,serrest_z)
+    fprintf(['primal parametric error estimate  ', ...
+    'is %10.4e  vs  %10.4e (parametric indicator)\n'],perrestdir_u,perrest_u)
+    fprintf(['dual parametric error estimate    ', ...
+    'is %10.4e  vs  %10.4e (parametric indicator)\n'],perrestdir_z,perrest_z)
+    fprintf(['overall estimate from indicators  ', ...
+        'is %10.4e '],tot_err_est)
+    fprintf(['\noverall direct error estimate     ', ...
+    'is<strong> %10.4e </strong>\n'],tot_err_direct)
 
     [~,~,~,~,wp] = stochcol_multilag(paras_sg{4}, paras_sg{1}, paras_sg{2}, paras_sg{3}, rule_id, fun_p);
     % Goal Functional Calculation
@@ -639,7 +635,7 @@ while tot_err_direct >= delta && iter <= adaptmax
         elseif G_rhs{5} == 2
             [~, wz] = goafem_stochcol_fem_setup(paras_fem{1}, paras_fem{2}, a_unit, G_rhs);
             u_col_point = wz.'*sols_u;
-            Goal_unc = 100*u_col_point*G*u_col_point.';
+            Goal_unc = u_col_point*G*u_col_point.';
         elseif G_rhs{5} == 3
             [~, wz] = goafem_stochcol_fem_setup(paras_fem{1}, paras_fem{2}, a_unit, G_rhs);
             u_col_point = wz.'*sols_u;
@@ -669,16 +665,19 @@ while tot_err_direct >= delta && iter <= adaptmax
                 listy, listy2, sols_u, sols_z, F_rhs, G_rhs, rf_type, ...
                 X, fun_p, rule_id, aa, polys, Q);
         Goal = 2*Goal - B;
+        
+        %[~, fz] = goafem_stochcol_fem_setup(paras_fem{1}, paras_fem{2}, a_unit, F_rhs);
+        %    F = fz.'*sols_z*wp;
     end
     
     % exponential code 
     iter = iter + 1;
     
-%     if pmethod == 1 && mod(iter, 5) == 0% P1
-%         TITLE = ['FE mesh at ', num2str(iter), ' iteration'];
-%         plot_mesh(paras_fem{2}, paras_fem{1}, TITLE);
-%         pause(1)
-%     end
+    if pmethod == 1 && mod(iter, 5) == 0% P1
+        TITLE = ['FE mesh at ', num2str(iter), ' iteration'];
+        plot_mesh(paras_fem{2}, paras_fem{1}, TITLE);
+        pause(1)
+    end
     
     
     err_p_iter_u(iter) = perrest_u;
@@ -702,13 +701,17 @@ while tot_err_direct >= delta && iter <= adaptmax
     sols_z_iter{iter}    = sols_z;
     B_iter(iter)         = B;
     Goal_unc_iter(iter)  = Goal_unc;
+    fprintf('\nValue of uncorrected GF %.9f',Goal_unc);
+    fprintf('\nValue of corrected GF %.9f\n',Goal);
+    %fprintf('\n RHS %.9f\n',F);
+    %fprintf('\n Bilinear form %.9f\n',B);
     Goal_iter(iter)      = Goal;
     paras_sg_iter{iter}  = paras_sg;
     paras_fem_iter{iter} = paras_fem;
     dof(iter) = size(sols_u,1)*size(sols_u,2);
     if nargin(F_rhs{1}) == 3
-        fprintf('\n Value of uncorrected GF %.9f\n',Goal_unc/16);
-        fprintf(' Value of corrected GF %.9f\n',Goal/16);
+        fprintf('\nValue of uncorrected GF %.9f',Goal_unc/16);
+        fprintf('\nValue of corrected GF %.9f\n',Goal/16);
         Goal_unc_iter(iter)  = Goal_unc/16;
         Goal_iter(iter)      = Goal/16;
     end
@@ -786,4 +789,4 @@ fprintf('          Dual Variance maximum %9.6f\n',max(VAR_z))
 fprintf('Dual Standard Deviation maximum %9.6f\n',max(STD_z))
 fprintf('\n<strong>Elapsed time:</strong> %.2f sec\n',endLoopTime);
 
-%goafem_referenceSC;
+%goafem_referenceSC

@@ -27,7 +27,7 @@ switch RHS_type
                  {@(x1,x2) ones(size(x1)), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1))}, ...
                  {@(x1,x2) ones(size(x1)), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1))}};
     case 2 % Mommer-Stevenson based example
-        F_rhs = {{@(x1,x2) zeros(size(x1)), @(x1,x2) 1.*(x2 <= 0.5 - x1),  @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1))}, ... %%THIS ONE
+        F_rhs = {{@(x1,x2) zeros(size(x1)), @(x1,x2) 1.*(x2 <= 0.5 - x1),  @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1))}, ... 
                  {@(x1,x2) zeros(size(x1)), @(x1,x2) 1.*(x2 <= -1.0 - x1), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1))}, ...
                  {@(x1,x2) zeros(size(x1)), @(x1,x2) 1.*(x2 >= 1.5 + x1),  @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1))}, ...
                  {@(x1,x2) zeros(size(x1)), @(x1,x2) 1.*(x2 >= 1.5 + x1),  @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1))}};
@@ -171,7 +171,11 @@ switch QOI_type
     case 2 % Mollifiers
         F_rhs = {@(x1,x2) ones(size(x1)), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1))};
         x1_0 = default('Pointwise estimation: x1-coord (default is 0.4)', 0.4);
-        x2_0 = default('Pointwise estimation: x2-coord (default is -0.5)', -0.5);
+        if sn == 1
+            x2_0 = default('Pointwise estimation: x2-coord (default is 0.5)', 0.5);
+        else
+            x2_0 = default('Pointwise estimation: x2-coord (default is -0.5)', -0.5);
+        end
         r = default('Mollifier Radius (default is 0.15)',0.15);
         Mollconst = 2.1436*r^-2;
         supp = @(x1,x2) (x1_0 - x1).^2 + (x2_0 - x2).^2 < r.^2;
@@ -225,7 +229,7 @@ switch QOI_type
                  {@(x1,x2) exp(-((x1 + 0.5).^2 + (x2 - 0.5).^2)), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1))}}; 
              
     case 5 % Non-linear (second moment of true solution in sub-domain)
-        weight_goal = @(x1, x2) 4.*(0.25 < x1 & x1 < 0.75 & 0.25 < x2 & x2 < 0.75);
+        weight_goal = @(x1,x2) 800.*(x2 >= 1.5 - x1);%@(x1, x2) ones(size(x1));%@(x1, x2) 4.*(0.25 < x1 & x1 < 0.75 & 0.25 < x2 & x2 < 0.75);
         G_rhs = {{weight_goal, @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1))}, ...
                  {weight_goal, @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1))}, ...
                  {weight_goal, @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1))}, ...
@@ -240,11 +244,11 @@ switch QOI_type
                  {@(x1,x2) 2.*(x2 >= 1 - x1), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1))}};
              
     case 3 % Non-linear (square of integral in sub-domain)
-        %weight_goal = @(x1,x2) 8.*(x2 >= 1.5 - x1);
-        G_rhs = {{@(x1,x2) 8.*(x2 >= 1.5 - x1), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1))}, ...%%%%AND THIS ONE
-                 {@(x1,x2) 8.*(x2 >= 1.5 - x1), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1))}, ...
-                 {@(x1,x2) 8.*(x2 >= 1.5 - x1), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1))}, ...
-                 {@(x1,x2) 8.*(x2 >= 1.5 - x1), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1))}};
+        %weight_goal = @(x1,x2) 80.*(x2 >= 1.5 - x1);
+        G_rhs = {{@(x1,x2) 80.*(x2 >= 1.5 - x1), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1))}, ...
+                 {@(x1,x2) 80.*(x2 >= 1.5 - x1), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1))}, ...
+                 {@(x1,x2) 80.*(x2 >= 1.5 - x1), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1))}, ...
+                 {@(x1,x2) 80.*(x2 >= 1.5 - x1), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1)), @(x1,x2) zeros(size(x1))}};
 
     case 6 %Variance on linear functional + Molifier weight
         x1_0 = default('Pointwise estimation: x1-coord (default is 0.4)', 0.4);

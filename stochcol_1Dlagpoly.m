@@ -31,7 +31,13 @@ else
         pdf = varargin{1};
         L = varargin{2};
         lagpoly = @(y) lagpoly(y).*pdf(y);
-        weight = integral(lagpoly,-L,L);
+        weight = 0;
+        for L_current=-L:L-1
+            weight = weight + integral(lagpoly, L_current, L_current+1, 'RelTol', 1e-20);
+        end
+        if abs(weight) < 1e-10
+            weight = 0;
+        end
     end
 end
 end

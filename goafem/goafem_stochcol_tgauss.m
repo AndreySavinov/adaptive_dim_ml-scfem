@@ -20,7 +20,7 @@ zero_v = zeros(nel,1);
 x1 = zero_v; 
 x2 = x1;
 % vectorized linear shape functions
-[phi_e,~,~] = vtshape(s, t);
+[phi_e,~,~] = tshape(s, t);
 % calculate physical coordinates of points in all physical elements which
 % are corresponding to the point (s, t) in the reference element using
 % isoparametric relation
